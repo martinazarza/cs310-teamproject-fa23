@@ -19,5 +19,4 @@ public class Main {
     public String reverse(String message) {
         return message;
     }
-    
 }
