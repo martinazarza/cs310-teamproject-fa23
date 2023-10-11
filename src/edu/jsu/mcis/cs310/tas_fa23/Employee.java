@@ -6,8 +6,19 @@ package edu.jsu.mcis.cs310.tas_fa23;
 
 /**
  *
- * @author User
+ * @author Xavier Bausley
  */
+import java.time.*;
 public class Employee {
+    private long id;
+    private String firstname;
+    private String middlename;
+    private String lastname;
+    private LocalDateTime localtime;
+    private Badge badge;
+    private Department department;
+    private Shift shift;
+    private EmployeeType employeeType;
+    
     
 }
