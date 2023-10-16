@@ -9,5 +9,5 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
  * @author Johna
  */
 public class DepartmentDAO {
-    
+    DEPARTMENT
 }
