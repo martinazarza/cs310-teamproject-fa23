@@ -18,6 +18,10 @@ public class Punch {
         this.adjustmentType = PunchAdjustmentType.NONE;
     }
 
+    public Punch(int id, int terminalId, int badgeId, long originalTimeStamp, int punchTypeId) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
     // Add additional constructors and methods as needed
 
     // Getter and setter methods for all fields
