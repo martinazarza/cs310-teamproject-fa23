@@ -12,7 +12,7 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLExecption;
+import java.sql.SQLException;
  
 public class DepartmentDAO {
 
