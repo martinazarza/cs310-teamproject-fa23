@@ -23,6 +23,7 @@ public class DepartmentFindTest {
 
         /* Retrieve Department from Database */
         
+        
         Department d1 = departmentDAO.find(1);
 
         /* Compare to Expected Values */
