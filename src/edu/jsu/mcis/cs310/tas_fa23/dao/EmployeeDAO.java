@@ -2,12 +2,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package edu.jsu.mcis.cs310.tas_fa23;
+package edu.jsu.mcis.cs310.tas_fa23.dao;
 
 /**
  *
  * @author Xavier Bausley
  */
+
+import edu.jsu.mcis.cs310.tas_fa23.*;
+import edu.jsu.mcis.cs310.tas_fa23.dao.BadgeDAO;
+import edu.jsu.mcis.cs310.tas_fa23.dao.DAOException;
+import edu.jsu.mcis.cs310.tas_fa23.dao.DAOFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -63,88 +68,13 @@ public class EmployeeDAO {
                     }
                 }
             }
-        } catch (SQLException e){
+        } 
+        
+        catch (SQLException e){
             throw new DAOException(e.getMessage());
         }
-    }
-finally {
-    if (resultSet != null){
-        try{
-            resultSet.close();
-        } catch (SQLException e){
-            throw new DAOException(e.getMessage());
-        }
-    }
-    if (preparedStatement != null){
-        try{
-            preparedStatement.close();
-        } catch(SQLException e){
-            throw new DAOException(e.getMessage());
-        }
-    }
-    
-}
-return employee;
-
-public Employee find(Badge badge) {
-
-        Employee employee = null;
-
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            Connection conn = daoFactory.getConnection();
-
-            if (conn.isValid(0)) {
-
-                preparedStatement = conn.prepareStatement(QUERY_FIND_BY_EMPLOYEE_ID);
-                preparedStatement.setString(1, String.valueOf(badge.getId()));
-
-                boolean hasresults = preparedStatement.execute();
-
-                if (hasresults) {
-
-                    resultSet = preparedStatement.getResultSet();
-
-                    while (resultSet.next()) {
-                        int idnum = resultSet.getInt("id");
-                        EmployeeType type = EmployeeType.values()[resultSet.getInt("employeetypeid")];
-                        LocalDateTime active = resultSet.getTimestamp("active").toLocalDateTime();
-                        Badge badgenum = badge;
-                        String firstname = resultSet.getString("firstname");
-                        String middlename = resultSet.getString("middlename");
-                        String lastname = resultSet.getString("lastname");
-                        //DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
-                       // int departmentid = resultSet.getInt("departmentid");
-                       // Department department = departmentDAO.find(departmentid);
-                       // ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-                        //int shiftid = resultSet.getInt("shiftid");
-                       // Shift shift = shiftDAO.find(shiftid);
-                        employee = new Employee(idnum, active, firstname, middlename, lastname, badgenum, department, shift, type);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            throw new DAOException(e.getMessage());
-
-        } finally {
-            if (resultSet != null) {
-                try {
-                    resultSet.close();
-                } catch (SQLException e) {
-                    throw  new DAOException(e.getMessage());
-                }
-            }
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
-                }
-            }
-        }
+        
         return employee;
+        
     }
-}
 }
