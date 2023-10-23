@@ -8,6 +8,7 @@ package edu.jsu.mcis.cs310.tas_fa23;
  *
  * @author Xavier Bausley
  */
+
 import java.time.*;
 public class Employee {
     private int id;
@@ -29,6 +30,10 @@ public class Employee {
         this.department = department;
         this.shift = shift;
         this.employeeType = employeeType;
+    }
+
+    public Employee(int idnum, LocalDateTime active, String firstname, String middlename, String lastname, Badge badge, Department department, Shift shift, EmployeeType type) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     public long getID(){
         return id;
@@ -69,13 +74,13 @@ public class Employee {
         s.append("");
         s.append(middleName);
         s.append("(#");
-        //s.append(badgeid);
+        s.append(badge.getId());
         s.append("), Type: ");
-       // s.append(type);
+       s.append(employeeType);
        s.append(", Department: ");
        s.append(department.getDesc());
        s.append(", Active: ");
-       //s.append(active.format(format));
+       s.append(localDateTime.toString());
        return s.toString();
         
     }

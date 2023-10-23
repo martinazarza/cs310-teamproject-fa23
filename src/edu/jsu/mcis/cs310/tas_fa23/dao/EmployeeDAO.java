@@ -58,12 +58,12 @@ public class EmployeeDAO {
                         String firstname = resultSet.getString("firstname");
                         String middlename = resultSet.getString("middlename");
                         String lastname = resultSet.getString("lastname");
-                        //DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
-                        //int departmentid = resultSet.getInt("departmentid");
-                        //Department department = departmentDAO.find(departmentid);
-                        //ShiftDAO shiftDAO = daoFactory.getShiftDAO();
-                        //int shiftid = resultSet.getInt("shiftid");
-                        //Shift shift = shiftDAO.find(shiftid);
+                        DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+                        int departmentid = resultSet.getInt("departmentid");
+                        Department department = (Department) departmentDAO.find(departmentid);
+                        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+                        int shiftid = resultSet.getInt("shiftid");
+                        Shift shift = shiftDAO.find(shiftid);
                         employee = new Employee(idnum, active, firstname, middlename, lastname, badge, department, shift, type);
                     }
                 }
@@ -73,8 +73,86 @@ public class EmployeeDAO {
         catch (SQLException e){
             throw new DAOException(e.getMessage());
         }
+        finally{
+            if(resultSet != null){
+                try{
+                    resultSet.close();
+                }
+                catch(SQLException e){
+                    throw new DAOException(e.getMessage());
+                }
+            }
+            if (preparedStatement != null){
+                try{
+                    preparedStatement.close();
+                }
+                catch(SQLException e){
+                    throw new DAOException(e.getMessage());
+                }
+            }
+        }
         
         return employee;
         
+    }
+    
+    public Employee find(Badge badge){
+        Employee employee = null;
+        
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+        try{
+            Connection connection = daoFactory.getConnection();
+            
+            if(connection.isValid(0)){
+                preparedStatement = connection.prepareStatement(QUERY_FIND_BY_EMPLOYEE_ID);
+                preparedStatement.setString(1, String.valueOf(badge.getId()));
+                
+                boolean hasResults = preparedStatement.execute();
+                
+                if (hasResults){
+                    resultSet = preparedStatement.getResultSet();
+                }
+                while(resultSet.next()){
+                    int idnum = resultSet.getInt("id");
+                    EmployeeType employeeType = EmployeeType.values()[resultSet.getInt("employeetypeid")];
+                    LocalDateTime localDateTime = resultSet.getTimestamp("active").toLocalDateTime();
+                    Badge badgenum = badge;
+                    String firstname = resultSet.getString("firstname");
+                    String middlename = resultSet.getString("middlename");
+                    String lastname = resultSet.getString("lastname");
+                    DepartmentDAO departmentDAO = daoFactory.getDepartmentDAO();
+                    int departmentid = resultSet.getInt("departmentid");
+                    Department department = (Department) departmentDAO.find(departmentid);
+                    ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+                    int shiftid = resultSet.getInt("shiftid");
+                    Shift shift = shiftDAO.find(shiftid);
+                    employee = new Employee(idnum, localDateTime, firstname, middlename, lastname, badgenum, department, shift, employeeType);
+                }
+            }
+        }
+        catch (SQLException e){
+            throw new DAOException(e.getMessage());
+        }
+        finally{
+            if(resultSet != null){
+                try{
+                    resultSet.close();
+                }
+                catch(SQLException e){
+                    throw new DAOException(e.getMessage());
+                }
+            }
+            if (preparedStatement != null){
+                try{
+                    preparedStatement.close();
+                }
+                catch (SQLException e){
+                    throw new DAOException(e.getMessage());
+                }
+            }
+        }
+        return employee;
     }
 }
