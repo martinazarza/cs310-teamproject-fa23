@@ -10,12 +10,12 @@ package edu.jsu.mcis.cs310.tas_fa23;
  */
 public class Department {
     private int id;
-    private String desc;
+    private String description;
     private int terminalID;
     
     public Department(int id, String desc, int terminalID){
         this.id = id;
-        this.desc = desc;
+        this.description = description;
         this.terminalID = terminalID;
     }
 
@@ -26,7 +26,7 @@ public class Department {
          return id;
     }
     public String getDesc() {
-        return desc;
+        return description;
     }
     public int getterminalID() {
         return terminalID;
@@ -35,7 +35,7 @@ public class Department {
     public String toString() {
         return "Department{" +
                 "id=" + id +
-                ", desc='" + desc + '\'' +
+                ", description='" + description + '\'' +
                 ", terminalID" + terminalID +
                 '}';
                 
