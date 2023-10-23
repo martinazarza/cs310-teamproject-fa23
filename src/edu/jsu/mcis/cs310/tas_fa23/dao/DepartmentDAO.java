@@ -9,6 +9,7 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
  * @author Johna
  */
 
+import edu.jsu.mcis.cs310.tas_fa23.Department;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,11 +29,11 @@ public class DepartmentDAO {
         Department department = null;
         
         PreparedStatement ps = null;
-        Result rs = null;
+        ResultSet rs = null;
         
         try {
             
-            Connection conn = daoFactory.getConnection();
+            Connection conn = daofactory.getConnection();
             
             if(conn.isValid(0)) {
                 ps = conn.prepareStatement(QUERY_FIND);
