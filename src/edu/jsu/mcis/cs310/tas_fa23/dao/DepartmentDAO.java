@@ -48,7 +48,7 @@ public class DepartmentDAO {
                         int departmentid = rs.getInt("id");
                         String desc = rs.getString("desc");
                         
-                        department = new department(departmentid, terminalid, desc);       
+                        department = new Department(departmentid, terminalid, desc);       
                     }
                 }
             }
@@ -60,14 +60,14 @@ public class DepartmentDAO {
                 try {
                     rs.close();
                 } catch (SQLException e) {
-                    throw new DAOExecption(e.getMessage());
+                    throw new DAOException(e.getMessage());
                 }
             }
             if (ps != null) {
                 try {
                     ps.close();
-                } catch (SQLExecption e) {
-                    throw new DAOExeption(e.getMessage());
+                } catch (SQLException e) {
+                    throw new DAOException(e.getMessage());
                 }
             }
         }    

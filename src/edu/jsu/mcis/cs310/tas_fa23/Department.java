@@ -18,6 +18,10 @@ public class Department {
         this.desc = desc;
         this.terminalID = terminalID;
     }
+
+    public Department(int departmentid, int terminalid, String desc) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
     public int getID() {
          return id;
     }
