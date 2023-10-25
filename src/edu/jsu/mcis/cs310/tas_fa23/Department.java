@@ -9,61 +9,46 @@ package edu.jsu.mcis.cs310.tas_fa23;
  * @author Johna
  * @author quint
  */
-public class Department 
-{    
-    
-    private final String description;
-    
-    private final int id, terminalID;
- 
-    public Department (int id, String description, int terminalID)
-    {
-        this.id = id;
+
+public class Department {
+    private int departmentid, terminalid;
+    private String description;
+
+    public Department(int departmentid, int terminalid, String description) {
+        this.departmentid = departmentid;
+        this.terminalid = terminalid;
         this.description = description;
-        this.terminalID = terminalID;
     }
+ 
     
-    /**
-     *
-     * @return - return's the id for the department
-     */
-    public int getID()
-    {
-        return id;
+    public int getDepartmentid() {
+        return departmentid;
     }
-    
-    /**
-     *
-     * @return - return's the department's description
-     */
-    public String getDescription()
-    {
+
+    public void setDepartmentid(int departmentid) {
+        this.departmentid = departmentid;
+    }
+
+    public int getTerminalid() {
+        return terminalid;
+    }
+
+    public void setTerminalid(int terminalid) {
+        this.terminalid = terminalid;
+    }
+
+    public String getDescription() {
         return description;
     }
-    
-    /**
-     *
-     * @return - returns the terminalID of the department
-     */
-    public int getTerminalID()
-    {
-        return terminalID;    
+
+    public void setDescription(String description) {
+        this.description = description;
     }
-    
-    /**
-     *
-     * @return - return's the department's values as a string.
-     */
-   
+
     @Override
-    public String toString()
-    {
-        StringBuilder sBuilder = new StringBuilder(); 
-        
-        sBuilder.append('#').append(id).append(" ");
-        sBuilder.append('(').append( description).append(')').append(", ");
-        sBuilder.append("Terminal ID: ").append(terminalID);
-        
-        return sBuilder.toString();
+    public String toString() {
+        return "#" + departmentid +
+                " (" + description + "), " +
+                "Terminal ID: " + terminalid;
     }
 }
