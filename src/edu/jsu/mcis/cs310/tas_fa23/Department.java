@@ -7,37 +7,70 @@ package edu.jsu.mcis.cs310.tas_fa23;
 /**
  *
  * @author Johna
+ * @author quint
  */
-public class Department {
-    private int id;
-    private String description;
-    private int terminalID;
+public class Department 
+{    
     
-    public Department(int id, String desc, int terminalID){
+    private final String description;
+    
+    private final int id, terminalID;
+    
+    /**
+     *
+     * @param id - input for the object's id
+     * @param description - input for the department's descriptions
+     * @param terminalID - input for the department's terminalID
+     * this function is used to create a new Department
+     */
+    public Department (int id, String description, int terminalID)
+    {
         this.id = id;
         this.description = description;
         this.terminalID = terminalID;
     }
-
-    public Department(int departmentid, int terminalid, String desc) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    
+    /**
+     *
+     * @return - return's the id for the department
+     */
+    public int getID()
+    {
+        return id;
     }
-    public int getID() {
-         return id;
-    }
-    public String getDesc() {
+    
+    /**
+     *
+     * @return - return's the department's description
+     */
+    public String getDescription()
+    {
         return description;
     }
-    public int getterminalID() {
-        return terminalID;
+    
+    /**
+     *
+     * @return - returns the terminalID of the department
+     */
+    public int getTerminalID()
+    {
+        return terminalID;    
     }
-    @Override 
-    public String toString() {
-        return "Department{" +
-                "id=" + id +
-                ", description='" + description + '\'' +
-                ", terminalID" + terminalID +
-                '}';
-                
+    
+    /**
+     *
+     * @return - return's the department's values as a string.
+     */
+   
+    @Override
+    public String toString()
+    {
+        StringBuilder sBuilder = new StringBuilder(); 
+        
+        sBuilder.append('#').append(id).append(" ");
+        sBuilder.append('(').append( description).append(')').append(", ");
+        sBuilder.append("Terminal ID: ").append(terminalID);
+        
+        return sBuilder.toString();
     }
 }
