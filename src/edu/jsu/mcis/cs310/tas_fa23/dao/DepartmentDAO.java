@@ -7,6 +7,7 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
 /**
  *
  * @author Johna
+ * @author quint
  */
 
 import edu.jsu.mcis.cs310.tas_fa23.Department;
@@ -16,61 +17,82 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
  
 public class DepartmentDAO {
-
-    private final DAOFactory daofactory;
+    private final String QUERY_FIND = "SELECT * FROM department WHERE id = ?";
     
-    private static final String QUERY_FIND = "SELECT * FROM department WHERE id = ?";
+    private final DAOFactory daoFactory;
     
-    public DepartmentDAO(DAOFactory daofactory) {
-        this.daofactory = daofactory;
+    DepartmentDAO(DAOFactory daoFactory)
+    {
+        this.daoFactory = daoFactory;
     }
     
-    public Department find(int id) {
+    /**
+     *
+     * @param id
+     * @return - return's a department and its values based on an input of an id
+     */
+    public Department find(int id)
+    {
         Department department = null;
         
         PreparedStatement ps = null;
         ResultSet rs = null;
         
-        try {
+        try
+        {
             
-            Connection conn = daofactory.getConnection();
-            
-            if(conn.isValid(0)) {
+            Connection conn = daoFactory.getConnection();
+            if (conn.isValid(0))
+            {
                 ps = conn.prepareStatement(QUERY_FIND);
-                ps.setString(1, String.valueOf(id));
+                ps.setInt(1, id);
                 
-                boolean hasresult = ps.execute();
+                boolean result = ps.execute();
                 
-                if(hasresult) {
+                if (result)
+                {
                     rs = ps.getResultSet();
-                    while (rs.next()) {
-                        int terminalid = rs.getInt("terminalid");
-                        int departmentid = rs.getInt("id");
-                        String desc = rs.getString("desc");
+                    
+                   if (rs.next())
+                    {
+                        String description = rs.getString("description");
+                        int terminalID = rs.getInt("terminalid");
                         
-                        department = new Department(departmentid, terminalid, desc);       
+                        department = new Department(id, description, terminalID);
                     }
                 }
             }
-        } catch (SQLException e) {
+        }            
+        catch (SQLException e)
+        {
             throw new DAOException(e.getMessage());
-            
-        } finally { 
-            if(rs != null) {
-                try {
+        }
+        
+        finally 
+        {
+            if (rs != null)
+            {
+                try 
+                {
                     rs.close();
-                } catch (SQLException e) {
+                }
+                catch (SQLException e)
+                {
                     throw new DAOException(e.getMessage());
                 }
             }
-            if (ps != null) {
-                try {
+            if (ps != null)
+            {
+                try
+                {
                     ps.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
                 }
+                catch (SQLException e)
+                {
+                   throw new DAOException(e.getMessage());
+                }       
             }
-        }    
+        }
         return department;
-    }    
+    }
 }
