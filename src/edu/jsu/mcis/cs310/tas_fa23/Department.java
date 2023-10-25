@@ -15,14 +15,7 @@ public class Department
     private final String description;
     
     private final int id, terminalID;
-    
-    /**
-     *
-     * @param id - input for the object's id
-     * @param description - input for the department's descriptions
-     * @param terminalID - input for the department's terminalID
-     * this function is used to create a new Department
-     */
+ 
     public Department (int id, String description, int terminalID)
     {
         this.id = id;
