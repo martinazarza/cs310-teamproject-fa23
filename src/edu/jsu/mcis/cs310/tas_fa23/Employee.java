@@ -78,7 +78,7 @@ public class Employee {
         s.append("), Type: ");
        s.append(employeeType);
        s.append(", Department: ");
-       s.append(department.getDesc());
+       s.append(department.getdescription());
        s.append(", Active: ");
        s.append(localDateTime.toString());
        return s.toString();
