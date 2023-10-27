@@ -10,79 +10,97 @@ package edu.jsu.mcis.cs310.tas_fa23;
  */
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 public class Employee {
+    
     private int id;
-    private String firstName;
-    private String middleName;
-    private String lastName;
-    private LocalDateTime localDateTime;
+    private LocalDateTime active;
+    private String firstname;
+    private String middlename;
+    private String lastname;
+    private String badgeid;
+    private String workstation;
+    private String shiftType;
     private Badge badge;
     private Department department;
     private Shift shift;
-    private EmployeeType employeeType;
-    public Employee(int id, String firstName, String middleName, String lastName, LocalDateTime localDateTime, Badge badge, Department department, Shift shift, EmployeeType employeeType){
+    private EmployeeType type;
+
+    public Employee(int id, LocalDateTime active, String firstname, String middlename, String lastname, Badge badge, Department department, Shift shift, EmployeeType type) {
         this.id = id;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.localDateTime = localDateTime;
-        this.badge = badge;
+        this.active = active;
+        this.firstname = firstname;
+        this.middlename = middlename;
+        this.lastname = lastname;
+        this.badgeid = badge.getId();
         this.department = department;
-        this.shift = shift;
-        this.employeeType = employeeType;
+        this.workstation = department.getDescription();
+        this.shiftType = shift.getDescription();
+        this.type = type;
     }
 
-    public Employee(int idnum, LocalDateTime active, String firstname, String middlename, String lastname, Badge badge, Department department, Shift shift, EmployeeType type) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    public long getID(){
+    public Integer getId() {
         return id;
     }
-    public String getFirstName(){
-        return firstName;
+
+    public String getFirstname() {
+        return firstname;
     }
-    public String getMiddleName(){
-       return middleName;
+
+    public String getMiddlename() {
+        return middlename;
     }
-    public String getLastName(){
-        return lastName;
+
+    public String getLastname() {
+        return lastname;
     }
-    public LocalDateTime getLocalDateTime(){
-        return localDateTime;
+
+    public LocalDateTime getActive() {
+        return active;
     }
-    public Badge getBadge(){
+
+    public Badge getBadge() {
         return badge;
     }
-    public Department getDepartment(){
+
+    public Department getDepartment() {
         return department;
     }
-    public Shift getShift(){
+
+    public Shift getShift() {
         return shift;
     }
-    public EmployeeType getEmployeeType(){
-        return employeeType;
+
+    public EmployeeType getEmployeeType() {
+        return type;
     }
-    
-    public String toString(){
+
+    @Override
+    public String toString() {
+
         StringBuilder s = new StringBuilder();
-        s.append("ID#");
-        s.append(id);
-        s.append(":");
-        s.append(lastName);
-        s.append(",");
-        s.append(firstName);
-        s.append("");
-        s.append(middleName);
-        s.append("(#");
-        s.append(badge.getId());
-        s.append("), Type: ");
-       s.append(employeeType);
-       s.append(", Department: ");
-       s.append(department.getdescription());
-       s.append(", Active: ");
-       s.append(localDateTime.toString());
-       return s.toString();
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
         
+        s
+            .append("ID #")
+            .append(id)
+            .append(": ")
+            .append(lastname)
+            .append(", ")
+            .append(firstname)
+            .append(" ")
+            .append(middlename)
+            .append(" (#")
+            .append(badgeid)
+            .append("), Type: ")
+            .append(type)
+            .append(", Department: ")
+            .append(department.getDescription())
+            .append(", Active: ")
+            .append(active.format(format));
+
+        return s.toString();
     }
-    
 }
