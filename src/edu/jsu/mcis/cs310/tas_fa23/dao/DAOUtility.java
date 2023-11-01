@@ -15,8 +15,21 @@ import edu.jsu.mcis.cs310.tas_fa23.Punch;
  * 
  */
 public final class DAOUtility {
+    
+     public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist){
+         String result;
+         
+         ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
+         
+         for (Punch punch : dailypunchlist){
+             
+         }
+         
+         
 
-    public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
+    
+
+//public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
         int totalMinutes = 0;
         boolean insideShift = false;
         LocalDateTime lunchStart = null;
@@ -53,6 +66,6 @@ public final class DAOUtility {
                 }
             }
         }
-        return totalMinutes;
+       // return totalMinutes;
     }
 }
