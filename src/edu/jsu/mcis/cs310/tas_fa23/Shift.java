@@ -138,13 +138,4 @@ public class Shift {
                 " (" + shiftduration + " minutes); Lunch: " + lunchstart +
                 " - " + lunchstop + " (" + lunchduration + " minutes)";
     }
-
-    int getDockPenalty() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    LocalTime getShiftStart() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
 }
