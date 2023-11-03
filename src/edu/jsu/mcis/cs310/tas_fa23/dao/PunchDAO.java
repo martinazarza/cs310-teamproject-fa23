@@ -1,7 +1,6 @@
 package edu.jsu.mcis.cs310.tas_fa23.dao;
 
 import edu.jsu.mcis.cs310.tas_fa23.Badge;
-import edu.jsu.mcis.cs310.tas_fa23.Employee;
 import edu.jsu.mcis.cs310.tas_fa23.EventType;
 import edu.jsu.mcis.cs310.tas_fa23.Punch;
 import java.time.LocalDate;
@@ -14,32 +13,57 @@ import java.sql.*;
  * from the database and passes it to and from the
  * methods in the TAS libraries.
  * 
- * @author quint
  * @author Jalen
  */
 
 public class PunchDAO {
-
     private static final String QUERY_FIND = "SELECT * FROM event WHERE id = ?";
-    private static final String QUERY_LIST = "SELECT * FROM event WHERE badgeid = ? ORDER BY timestamp";
-    private static final String QUERY_CREATE = "INSERT INTO event (terminalid, badgeid, timestamp, eventtypeid) VALUES (?, ?, ?, ?)";
-    private static final String QUERY_LIST_E = "SELECT * FROM event WHERE badgeid = ? AND timestamp > ? LIMIT 1";
+    private static final String QUERY_LIST = "SELECT * FROM event WHERE badgeid = ? AND DATE(timestamp) = ? ORDER BY timestamp";
 
     private final DAOFactory daoFactory;
 
-    // constructor
     PunchDAO(DAOFactory daoFactory) {
+
         this.daoFactory = daoFactory;
+
     }
 
-    /**
-     * This method is used to find and return individual 
-     * model objects from the database.
-     * 
-     * @param id Represents employee ID
-     * @return 
-     */
+    public int create(Punch punch){
+        String badgeId = punch.getBadge().getId();
+        LocalDateTime timestamp = punch.getOriginaltimestamp();
+        try{
+            Connection conn = daoFactory.getConnection();
+            PreparedStatement statement = conn.prepareStatement(
+                "INSERT INTO event (badgeid, terminalid, eventtypeid, timestamp)"+
+                "VALUES(?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+            statement.setString(1, badgeId);
+            statement.setInt(2, punch.getTerminalId());
+            statement.setInt(3, punch.getPunchType().ordinal());
+            statement.setObject(4, timestamp);
+            
+            int affectedRows = statement.executeUpdate();
+            
+            if(affectedRows == 0){
+                return 0; 
+            }
+            
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if(generatedKeys.next()){
+                int id = generatedKeys.getInt(1);
+                punch.setId(id);
+                return id;
+            } else{
+                
+                return 0;
+            
+            }
+        
+        } catch(SQLException e){
+            throw new DAOException(e.getMessage());
+        }
+                
     
+    }
     public Punch find(int id) {
 
         Punch punch = null;
@@ -54,7 +78,7 @@ public class PunchDAO {
             if (conn.isValid(0)) {
 
                 ps = conn.prepareStatement(QUERY_FIND);
-                ps.setString(1, Integer.toString(id));
+                ps.setInt(1, id);
 
                 boolean hasresults = ps.execute();
 
@@ -63,28 +87,32 @@ public class PunchDAO {
                     rs = ps.getResultSet();
 
                     while (rs.next()) {
-
-                        int terminalid;
-                        String badgeid;
-                        EventType punchtype;
-                        LocalDateTime originaltimestamp;
-
-                        // get terminal id  
-                        terminalid = rs.getInt("terminalid");
-
-                        // getting badge
-                        badgeid = rs.getString("badgeid");
-                        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
-                        Badge b = badgeDAO.find(badgeid);
-
-                        // get punch type 
-                        punchtype = EventType.values()[rs.getInt("eventtypeid")];
-
-                        // get timestamp
-                        originaltimestamp = rs.getTimestamp("timestamp").toLocalDateTime();
-
-                        punch = new Punch(id, terminalid, b, originaltimestamp, punchtype);
-
+                        
+                        // Convert the timestamp in the database to LocalDateTime in java
+                        LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+                        
+                        // Get the terminal id from the database
+                        int terminalId = rs.getInt("terminalid");
+                        
+                        // Create a new Badge object that has the required badge id
+                        Badge badge = new Badge(rs.getString("badgeid"),null);
+                        
+                        // Check the "eventtypeid" to set the EventType in the final constructor
+                        EventType event = null;
+                        switch (rs.getInt("eventtypeid")) {
+                            case 0:
+                                event = EventType.CLOCK_OUT;
+                                break;
+                            case 1:
+                                event = EventType.CLOCK_IN;
+                                break;
+                            case 2:
+                                event = EventType.TIME_OUT;
+                                break;
+                        }
+                        
+                        // Set the return variable
+                        punch = new Punch(id, terminalId, badge, timestamp, event);
                     }
 
                 }
@@ -117,212 +145,145 @@ public class PunchDAO {
         return punch;
 
     }
-
-    /**
-     * This method is used to retrieve all the punches entered by
-     * an employee for a single day.
-     * 
-     * @param badge Represents the employee badge.
-     * @param date Represents specified day.
-     * @return Returns punches for a single day.
-     */
     
-    public ArrayList list(Badge badge, LocalDate date) {
-        ArrayList<Punch> list = new ArrayList();
-
+    public ArrayList list(Badge badge, LocalDate day) {
+        
+        ArrayList<Punch> result = new ArrayList<>();
+        LocalDate secondDay = day.plusDays(1);
+        boolean hasResults;
+        
         PreparedStatement ps = null;
         ResultSet rs = null;
-
+        
         try {
-
+            
             Connection conn = daoFactory.getConnection();
-
+            
             if (conn.isValid(0)) {
-
+                // Use prepared statement to stage the "SELECT * FROM " argument
                 ps = conn.prepareStatement(QUERY_LIST);
+                
                 ps.setString(1, badge.getId());
-
-                boolean hasresults = ps.execute();
-                if (hasresults) {
-
+                ps.setString(2, day.toString());
+                
+                // Execute 
+                hasResults = ps.execute();
+                
+                // Check if results
+                if (hasResults) {
+                    
+                    /* Get ResultSet */
+                    
                     rs = ps.getResultSet();
-
+                    
                     while (rs.next()) {
-
-                        Timestamp punchdate = rs.getTimestamp(4);
-                        LocalDateTime local = punchdate.toLocalDateTime();
-                        LocalDate ld = local.toLocalDate();
-
-                        if (ld.equals(date)) {
-                            int id = rs.getInt(1);
-                            list.add(find(id));
+                        // Get the equivelent EventType
+                        EventType event = null;
+                        switch (rs.getInt("eventtypeid")) {
+                            case 0:
+                                event = EventType.CLOCK_OUT;
+                                break;
+                            case 1:
+                                event = EventType.CLOCK_IN;
+                                break;
+                            case 2:
+                                event = EventType.TIME_OUT;
+                                break;
                         }
-
+                        
+                        // Get terminal id
+                        int terminalId = rs.getInt("terminalid");
+                        
+                        // Convert the timestamp in the database to LocalDateTime in java
+                        LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+                        
+                        // Create Punch object
+                        Punch punch = new Punch(rs.getInt("id"),terminalId, badge, timestamp, event);
+                        
+                        // Add the new punch object to the result
+                        result.add(punch);
                     }
+                    
+                }
+                
+                /* If no data available, print an error */
+
+                else {
+
+                    System.err.println("ERROR: No data returned!");
 
                 }
-
-            }
-
-            if (((list.get(list.size() - 1)).getPunchtype() == EventType.CLOCK_IN)) {
-                LocalDateTime newdate = list.get(list.size() - 1).getOriginaltimestamp();
-                Timestamp newts = Timestamp.valueOf(newdate);
-
-                ps = conn.prepareStatement(QUERY_LIST_E);
+                
+                /* Execute prepare statement again but with the next day of punch*/
+                
                 ps.setString(1, badge.getId());
-                ps.setString(2, newts.toString());
-
-                boolean hasresults = ps.execute();
-
-                if (hasresults) {
-
+                ps.setString(2, secondDay.toString() + "%");
+                
+                // Execute 
+                hasResults = ps.execute();
+                
+                // Check if results
+                if (hasResults) {
+                    
+                    /* Get ResultSet */
+                    
                     rs = ps.getResultSet();
-
-                    while (rs.next()) {
-                        int id = rs.getInt(1);
-                        list.add(find(id));
-                    }
-
-                }
-
-            }
-
-        } catch (SQLException e) {
-
-            throw new DAOException(e.getMessage());
-
-        } finally {
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    throw new DAOException(e.getMessage());
-                }
-            }
-
-        }
-
-        return list;
-
-    }
-
-    /**
-     * This method is used to retrieve all the punches entered by
-     * an employee within a range of dates.
-     * 
-     * @param badge Represents the employee badge.
-     * @param lowerDate Represents the beginning of the date range.
-     * @param upperDate Represents the ending of the date range.
-     * @return Returns punches within a range of dates.
-     */
-    
-    public ArrayList list(Badge badge, LocalDate lowerDate, LocalDate upperDate) {
-        ArrayList<Punch> list = new ArrayList();
-        
-        LocalDate date = lowerDate;
-        
-        while (date.isBefore(upperDate) || date.equals(upperDate)) {
-            ArrayList<Punch> entries = new ArrayList();
-            
-            try {
-                entries = list(badge, date);
-            } catch (IndexOutOfBoundsException e) {}
-            
-            if (!entries.isEmpty() && !list.isEmpty()) {
-                if (list.get(list.size() - 1).toString().equals(entries.get(0).toString())) {
-                    list.remove(list.size() - 1);
-                }
-            }
-            
-            list.addAll(entries);
-            
-            date = date.plusDays(1);
-        }
-        
-        return list;
-    }
-
-    /**
-     * This method is used to add new punches to the database.
-     * 
-     * @param punch Represents a new punch.
-     * @return Returns the numeric ID retrieved from the database as an integer.
-     */
-    
-    public int create(Punch punch) {
-
-        int punchId = 0;
-
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        EmployeeDAO employeeDao = daoFactory.getEmployeeDAO();
-        Employee employee = employeeDao.find(punch.getBadge());
-
-        int empTerminalId = employee.getDepartment().getTerminalid();
-
-        if (empTerminalId == punch.getTerminalid()) {
-
-            try {
-
-                Connection conn = daoFactory.getConnection();
-
-                if (conn.isValid(0)) {
-
-                    ps = conn.prepareStatement(QUERY_CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
-
-                    ps.setInt(1, punch.getTerminalid());
-                    ps.setString(2, punch.getBadge().getId());
-                    ps.setString(3, punch.getOriginaltimestamp().toString());
-                    ps.setInt(4, punch.getPunchtype().ordinal());
-
-                    int rowAffected = ps.executeUpdate();
-
-                    if (rowAffected == 1) {
-
-                        rs = ps.getGeneratedKeys();
-
-                        if (rs.next()) {
-                            punchId = rs.getInt(1);
+                    
+                    if (rs.next()) {
+                        // Get the equivelent EventType
+                        EventType event = null;
+                        switch (rs.getInt("eventtypeid")) {
+                            case 0:
+                                event = EventType.CLOCK_OUT;
+                                break;
+                            case 1:
+                                event = EventType.CLOCK_IN;
+                                break;
+                            case 2:
+                                event = EventType.TIME_OUT;
+                                break;
                         }
+                        
+                        /* Check if next day punch is  a clock out or a time out */
+                        if (event == EventType.CLOCK_OUT || event == EventType.TIME_OUT) {
+                            // Get terminal id
+                            int terminalId = rs.getInt("terminalid");
+
+                            // Convert the timestamp in the database to LocalDateTime in java
+                            LocalDateTime timestamp = rs.getTimestamp("timestamp").toLocalDateTime();
+
+                            // Create Punch object
+                            Punch punch = new Punch(rs.getInt("id"),terminalId, badge, timestamp, event);
+
+                            // Add the new punch object to the result
+                            result.add(punch);
+                        }
+                        /* If it isn't then don't add the next day to the list */
                     }
+                    
+                }
+                
+                /* If no data available, print an error */
+
+                else {
+
+                    System.err.println("ERROR: No data returned!");
 
                 }
-
-            } catch (SQLException e) {
-
-                throw new DAOException(e.getMessage());
-
-            } finally {
-
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException e) {
-                        throw new DAOException(e.getMessage());
-                    }
-                }
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException e) {
-                        throw new DAOException(e.getMessage());
-                    }
-                }
-
+                
             }
-
+            
         }
-
-        return punchId;
-
+        
+        catch (SQLException e) { e.printStackTrace(); }
+        
+        finally {
+            
+            if (rs != null) { try { rs.close(); } catch (SQLException e) { e.printStackTrace(); } }
+            if (ps != null) { try { ps.close(); } catch (SQLException e) { e.printStackTrace(); } }
+            
+        }
+        
+        return result;
     }
 }
