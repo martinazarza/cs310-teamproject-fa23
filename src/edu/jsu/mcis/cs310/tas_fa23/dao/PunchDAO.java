@@ -37,8 +37,8 @@ public class PunchDAO {
                 "INSERT INTO event (badgeid, terminalid, eventtypeid, timestamp)"+
                 "VALUES(?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, badgeId);
-            statement.setInt(2, punch.getTerminalId());
-            statement.setInt(3, punch.getPunchType().ordinal());
+            statement.setInt(2, punch.getTerminalid());
+            statement.setInt(3, punch.getPunchtype().ordinal());
             statement.setObject(4, timestamp);
             
             int affectedRows = statement.executeUpdate();
