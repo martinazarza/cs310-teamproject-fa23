@@ -3,69 +3,123 @@ package edu.jsu.mcis.cs310.tas_fa23.dao;
 import java.time.*;
 import java.util.*;
 import java.time.temporal.ChronoUnit;
-import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_fa23.Punch;
-
+import edu.jsu.mcis.cs310.tas_fa23.PunchAdjustmentType;
+import edu.jsu.mcis.cs310.tas_fa23.Shift;
 /**
- * 
- * Utility class for DAOs.  This is a final, non-constructable class containing
- * common DAO logic and other repeated and/or standardized code, refactored into
- * individual static methods.
- * 
+ *
+ * @author quint
  */
+
 public final class DAOUtility {
-    
-     public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist){
-         String result;
-         
-         ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
-         
-         for (Punch punch : dailypunchlist){
-             
-         }
-         
-         
 
-    
+    public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
+        
+        JsonArray jsonArr = new JsonArray();
+        
+        for (int x = 0; x < dailypunchlist.size(); x++){
+            
+            Punch punch = dailypunchlist.get(x);
+            
+            JsonObject obj = new JsonObject();
 
-//public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift shift) {
-        int totalMinutes = 0;
-        boolean insideShift = false;
-        LocalDateTime lunchStart = null;
-        LocalDateTime lunchEnd = null;
+            obj.put("id", String.valueOf(punch.getId()));
+            obj.put("badgeid", String.valueOf(punch.getBadgeid()));
+            obj.put("punchtype", String.valueOf(punch.getPunchtype()));
+            obj.put("adjustmenttype", String.valueOf(punch.getAdjustmenttype()));
+            obj.put("originaltimestamp", String.valueOf(punch.getOriginaltimestamp()));
+            obj.put("adjustedtimestamp", String.valueOf(punch.getAdjustedtimestamp()));
+            
+            jsonArr.add(obj);
+        }
 
-        for (int i = 0; i < dailypunchlist.size(); i++) {
-            Punch punch = dailypunchlist.get(i);
+        String json = Jsoner.serialize(jsonArr);
+        
+        return json;
+    }
 
-            if (punch.getType() == Punch.PunchType.CLOCK_IN) {
-                insideShift = true;
-            } else if (punch.getType() == Punch.PunchType.CLOCK_OUT) {
-                insideShift = false;
-            } else if (punch.getType() == Punch.PunchType.TIME_OUT) {
-                insideShift = false;
+     public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift s) {
+        long totalMinutes = 0;
+        long shiftDuration;
+
+        LocalDateTime shiftStart = null;
+        LocalDateTime shiftStop = null;
+
+        Boolean isRecorded;
+        Boolean isTimeout = false;
+
+        for (Punch p : dailypunchlist) {
+            isRecorded = false;
+
+            PunchAdjustmentType type = p.getAdjustmenttype();
+
+            if (type == PunchAdjustmentType.LUNCH_START || type == PunchAdjustmentType.LUNCH_STOP) {
                 continue;
             }
 
-            if (insideShift) {
-                if (punch.getType() == Punch.PunchType.CLOCK_IN) {
-                    if (lunchStart == null) {
-                        lunchStart = punch.getOriginaltimestamp().toLocalDateTime();
-                    }
-                } else if (punch.getType() == Punch.PunchType.CLOCK_OUT) {
-                    if (lunchStart != null) {
-                        lunchEnd = punch.getOriginaltimestamp().toLocalDateTime();
-                        long lunchDuration = ChronoUnit.MINUTES.between(lunchStart, lunchEnd);
-                        if (lunchDuration >= shift.getLunchDeduct()) {
-                            totalMinutes -= shift.getLunchDuration();
-                        }
-                        lunchStart = null;
-                        lunchEnd = null;
-                    }
-                    totalMinutes += ChronoUnit.MINUTES.between(punch.getOriginaltimestamp().toLocalDateTime(), dailypunchlist.get(i - 1).getOriginaltimestamp().toLocalDateTime());
+            if (null != type) {
+                switch (type) {
+                    case SHIFT_START:
+                        shiftStart = p.getAdjustedtimestamp();
+                        isRecorded = true;
+                        break;
+                    case SHIFT_STOP:
+                        shiftStop = p.getAdjustedtimestamp();
+                        isRecorded = true;
+                        break;
+                    default:
+                        break;
                 }
             }
+
+            // is the punch docked or in interval or no adjustment was made
+           
+            if (!isRecorded) {
+               
+                switch (p.getPunchtype()) {
+                    case CLOCK_IN:
+                        shiftStart = p.getAdjustedtimestamp();
+                        break;
+                    case CLOCK_OUT:
+                        shiftStop = p.getAdjustedtimestamp();
+                        break;
+                    case TIME_OUT:
+                        isTimeout = true;
+                        break;
+                }
+            } 
+            
+            else {
+                continue;
+            }
+
+            if (isTimeout) {
+                return (int) totalMinutes;
+            }
         }
-       // return totalMinutes;
+
+        if (shiftStop == null) {
+            LocalTime sStop = s.getShiftstop();
+            LocalDateTime ot = dailypunchlist.get(0).getAdjustedtimestamp();
+            
+            shiftStop = ot.withHour(sStop.getHour()).withMinute(sStop.getMinute()).withSecond(0).withNano(0);
+        }
+        
+        shiftDuration = ChronoUnit.MINUTES.between(shiftStart, shiftStop);
+        
+        //shiftDuration = Duration.between(shiftStart, shiftStop).toMinutes();
+
+        if (shiftDuration > s.getLunchthreshold()) {
+            totalMinutes = shiftDuration - s.getLunchduration();
+        } 
+        
+        else {
+            totalMinutes = shiftDuration;
+        }
+
+        return (int) totalMinutes;
     }
 }
+    
+
