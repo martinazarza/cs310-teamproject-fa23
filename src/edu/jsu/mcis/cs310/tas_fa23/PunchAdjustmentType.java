@@ -1,33 +1,23 @@
 package edu.jsu.mcis.cs310.tas_fa23;
 
 public enum PunchAdjustmentType {
-
+    
     NONE("None"),
     SHIFT_START("Shift Start"),
     SHIFT_STOP("Shift Stop"),
-    SHIFT_DOCK("Shift Dock"),
+    SHIFT_DOCK("Shift Stop"),
     LUNCH_START("Lunch Start"),
     LUNCH_STOP("Lunch Stop"),
-    INTERVAL_ROUND("Interval Round"), DOCK_PENALTY,
-
-    /**
-     *
-     */
-    GRACE_PERIOD;
-
+    INTERVAL_ROUND("Interval Round"),
+    
     private final String description;
-
-    private PunchAdjustmentType(String d) {
+    
+    private PunchAdjustmentType(string d){
         description = d;
     }
-
-    /**
-     *
-     * @return
-     */
+    
     @Override
     public String toString() {
         return description;
-    }
-
+    }        
 }
