@@ -7,6 +7,7 @@ import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_fa23.Punch;
 import edu.jsu.mcis.cs310.tas_fa23.PunchAdjustmentType;
 import edu.jsu.mcis.cs310.tas_fa23.Shift;
+import java.math.BigDecimal;
 /**
  *
  * @author quint
@@ -120,6 +121,7 @@ public final class DAOUtility {
 
         return (int) totalMinutes;
     }
+    
 }
     
 

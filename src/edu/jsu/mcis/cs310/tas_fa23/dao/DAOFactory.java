@@ -48,5 +48,8 @@ public final class DAOFactory {
     public PunchDAO getPunchDAO(){
         return new PunchDAO(this);
     }
+    public AbsenteeismDAO getAbsenteeismDAO(){
+        return new AbsenteeismDAO(this);
+    }
 
 }
