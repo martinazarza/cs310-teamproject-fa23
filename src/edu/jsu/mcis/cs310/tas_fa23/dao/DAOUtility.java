@@ -5,6 +5,8 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import com.github.cliftonlabs.json_simple.*;
 import edu.jsu.mcis.cs310.tas_fa23.Punch;
+import java.util.ArrayList;
+import java.util.HashMap;
 import edu.jsu.mcis.cs310.tas_fa23.PunchAdjustmentType;
 import edu.jsu.mcis.cs310.tas_fa23.Shift;
 import java.math.BigDecimal;
@@ -15,30 +17,30 @@ import java.math.BigDecimal;
 
 public final class DAOUtility {
 
-    public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
-        
-        JsonArray jsonArr = new JsonArray();
-        
-        for (int x = 0; x < dailypunchlist.size(); x++){
-            
-            Punch punch = dailypunchlist.get(x);
-            
-            JsonObject obj = new JsonObject();
+    public class DAOUtility {
 
-            obj.put("id", String.valueOf(punch.getId()));
-            obj.put("badgeid", String.valueOf(punch.getBadgeid()));
-            obj.put("punchtype", String.valueOf(punch.getPunchtype()));
-            obj.put("adjustmenttype", String.valueOf(punch.getAdjustmenttype()));
-            obj.put("originaltimestamp", String.valueOf(punch.getOriginaltimestamp()));
-            obj.put("adjustedtimestamp", String.valueOf(punch.getAdjustedtimestamp()));
-            
-            jsonArr.add(obj);
+
+public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
+        ArrayList<HashMap<String, String>> jsonData = new ArrayList<>();
+
+        for (Punch punch : dailypunchlist) {
+            HashMap<String, String> punchData = new HashMap<>();
+
+            punchData.put("id", String.valueOf(punch.getId()));
+            punchData.put("badgeid", punch.getBadge().getId());
+            punchData.put("terminalid", String.valueOf(punch.getTerminalid()));
+            punchData.put("punchtype", punch.getPunchType().toString());
+            punchData.put("adjustmenttype", punch.getAdjustmentType().toString());
+            punchData.put("originaltimestamp", punch.getOriginaltimestamp().printOriginal());
+            punchData.put("adjustedtimestamp", punch.getAdjustedtimestamp().printAdjusted());
+
+            jsonData.add(punchData);
         }
 
-        String json = Jsoner.serialize(jsonArr);
-        
-        return json;
+        return Jsoner.serialize(jsonData);
     }
+}
+
 
      public static int calculateTotalMinutes(ArrayList<Punch> dailypunchlist, Shift s) {
         long totalMinutes = 0;
