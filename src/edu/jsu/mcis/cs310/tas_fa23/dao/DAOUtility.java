@@ -121,6 +121,9 @@ public final class DAOUtility {
 
         return (int) totalMinutes;
     }
+    public static BigDecimal getAbsenteeism(ArrayList<Punch> punchList = new ArrayList{
+        
+    }
     
 }
     
