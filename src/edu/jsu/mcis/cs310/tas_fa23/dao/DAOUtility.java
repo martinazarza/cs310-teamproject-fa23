@@ -123,6 +123,9 @@ public static String getPunchListAsJSON(ArrayList<Punch> dailypunchlist) {
 
         return (int) totalMinutes;
     }
+    public static BigDecimal getAbsenteeism(ArrayList<Punch> punchList = new ArrayList{
+        
+    }
     
 }
     
