@@ -146,6 +146,26 @@ public class PunchDAO {
 
     }
     
+    public ArrayList<Punch> list(Badge badge, LocalDate begin, LocalDate end) {
+        ArrayList<Punch> result = new ArrayList<>();
+
+        // Iterate through each day in the date range
+        LocalDate currentDate = begin;
+        while (!currentDate.isAfter(end)) {
+            // Use the existing list method to get punches for the current day
+            ArrayList<Punch> punchesForDay = list(badge, currentDate);
+
+            // Add punches for the current day to the result list
+            result.addAll(punchesForDay);
+
+            // Move to the next day
+            currentDate = currentDate.plusDays(1);
+        }
+
+        return result;
+    }
+
+    
     public ArrayList list(Badge badge, LocalDate day) {
         
         ArrayList<Punch> result = new ArrayList<>();
